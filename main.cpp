@@ -129,10 +129,10 @@ public:
         int numToRemove = 0;
         
         if (difficulty == 0) numToRemove = 0;  // Hidden option to see whole matrix
-        else if (difficulty == 1) numToRemove = 45;  // Easy - removing 45/81 elements
-        else if (difficulty == 2) numToRemove = 55;  // Medium - removing 55/81 elements
-        else if (difficulty == 3) numToRemove = 65;  // Hard - removing 65/81 elements
-        else if (difficulty == 4) numToRemove = 70;  // COOKED - removing 70/71 elements
+        else if (difficulty == 1) numToRemove = 4;  // Very Easy - removing 45/81 elements
+        else if (difficulty == 2) numToRemove = 45;  // Easy - removing 45/81 elements
+        else if (difficulty == 3) numToRemove = 55;  // Medium - removing 55/81 elements
+        else if (difficulty == 4) numToRemove = 65;  // Hard - removing 65/81 elements
 
         removeNumbers(numToRemove);
     }
@@ -175,10 +175,37 @@ public:
         return true;
     }
 
+    void giveHint() {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (board[i][j] == 0) {  // Ищем пустую клетку
+                    // Подсказка: показываем правильное число в этой клетке
+                    cout << "Hint: Cell (" << i+1 << ", " << j+1 << ") should be " << solution[i][j] << endl;
+                    return;
+                }
+            }
+        }
+        cout << "No empty cells left to hint!" << endl;
+    }   
     void playGame() {
     while (true) {
-        system("cls");
         printBoard();  // Печать доски перед каждым вводом пользователя
+
+        cout << "\nChoose an option:\n";
+        cout << "[1] - Make a move\n";
+        cout << "[2] - Get a hint\n";
+        cout << "[3] - Start a new game\n";
+        cout << "[4] - Exit\n";
+        cout << "Enter your choice: ";
+
+        int choice;
+        cin >> choice;
+
+        if (choice == 4) {
+            cout << "Thank you for playing. Goodbye!" << endl;
+            break;
+        }
+
         int row, col, num;
         cout << "Enter row (1-9), column (1-9), and number (1-9): ";
         cin >> row >> col >> num;
@@ -207,8 +234,9 @@ public:
         board[row][col] = num;
 
         // Печать обновленной доски после хода
+        
         printBoard();
-
+        system("cls");
         // Проверка, есть ли еще пустые клетки на доске
         bool allFilled = true;
         for (int i = 0; i < SIZE; i++) {
@@ -225,7 +253,7 @@ public:
         if (allFilled) {
             cout << "Congratulations! You solved the puzzle!\n";
             break;
-        }
+        }        
     }
 
     // Пауза перед завершением программы
@@ -249,7 +277,7 @@ int main() {
 
     // Difficulty selection
     do{
-        cout << "Choose difficulty (1 - Easy, 2 - Medium, 3 - Hard, 4 - COOKED): ";
+        cout << "Choose difficulty (1 - Very Easy, 2 - Easy, 3 - Meduim, 4 - Hard): ";
         cin >> difficulty;
 
         if (difficulty >= 0 && difficulty <= 4) {

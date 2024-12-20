@@ -176,37 +176,64 @@ public:
     }
 
     void playGame() {
-        while (!isSolved()) {
-            printBoard();
-            int row, col, num;
-            cout << "Enter row (1-9), column (1-9), and number (1-9): ";
-            cin >> row >> col >> num;
+    while (true) {
+        system("cls");
+        printBoard();  // Печать доски перед каждым вводом пользователя
+        int row, col, num;
+        cout << "Enter row (1-9), column (1-9), and number (1-9): ";
+        cin >> row >> col >> num;
 
-            row--;
-            col--;
+        row--;
+        col--;
 
-            if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || num < 1 || num > 9) {
-                cout << "Invalid input. Please try again.\n";
-                continue;
-            }
-
-            if (board[row][col] != 0) {
-                cout << "Cell is already filled. Please choose another cell.\n";
-                continue;
-            }
-
-            if (!isValidMove(row, col, num)) {
-                cout << "Invalid move. Number conflicts with row, column, or subgrid.\n";
-                continue;
-            }
-
-            board[row][col] = num;
-                
+        // Проверка валидности ввода
+        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || num < 1 || num > 9) {
+            cout << "Invalid input. Please try again.\n";
+            continue;
         }
 
-        cout << "Congratulations! You solved the puzzle!\n";
+        if (board[row][col] != 0) {
+            cout << "Cell is already filled. Please choose another cell.\n";
+            continue;
+        }
+
+        // Проверка, можно ли вставить число в клетку
+        if (!isValidMove(row, col, num)) {
+            cout << "Invalid move. Number conflicts with row, column, or subgrid.\n";
+            continue;
+        }
+
+        // Запись числа в клетку
+        board[row][col] = num;
+
+        // Печать обновленной доски после хода
         printBoard();
+
+        // Проверка, есть ли еще пустые клетки на доске
+        bool allFilled = true;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (board[i][j] == 0) {
+                    allFilled = false;
+                    break;
+                }
+            }
+            if (!allFilled) break;
+        }
+
+        // Если все клетки заполнены, игра завершена
+        if (allFilled) {
+            cout << "Congratulations! You solved the puzzle!\n";
+            break;
+        }
     }
+
+    // Пауза перед завершением программы
+    cout << "Press Enter to exit...";
+    cin.ignore();  // Очищаем буфер
+    cin.get();     // Ожидаем нажатие Enter для завершения программы
+}
+
 
 };
 

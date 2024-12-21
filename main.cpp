@@ -273,6 +273,7 @@ public:
 
     void start() {
         srand(time(0));
+        clearScreen();
 
         cout << "\t\t\t<================================================================================>" << endl;
         cout << "\t\t\t|                        WELCOME TO SUDOKU Game!                                 |" << endl;
@@ -291,6 +292,7 @@ public:
         }
 
         // Create puzzle
+        board = SudokuBoard();
         board.generateBaseGrid();
         board.randomizeGrid();
         
@@ -336,8 +338,11 @@ private:
             cout << "\nChoose action:\n";
             cout << "[1] - Make a move\n";
             cout << "[2] - Get a hint\n";
-            cout << "[3] - Exit\n";
-            int choice = getValidInput("Your choice: ", 1, 3);
+            cout << "[3] - Start a new game\n";
+            cout << "[4] - Exit\n";
+
+            int choice = getValidInput("Your choice: ", 1, 4);
+
             try {
                 switch(choice) {
                     case 1: {
@@ -356,8 +361,7 @@ private:
                             cout << "\t\t\t<================================================================================>" << endl;
 
                             cout << "Press Enter to exit...";
-                            cin.ignore();
-                            cin.get();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
                             return;
                         }
                         break;
@@ -370,11 +374,15 @@ private:
                             cout << "No empty cells left!\n";
                         }
                         cout << "Press Enter to continue...";
-                        cin.ignore();
-                        cin.get();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
                         break;
                     }
                     case 3: {
+                        cout << "\nStarting new game...\n";
+                        start();
+                        return; 
+                    }
+                    case 4: {
                         cout << "\nThank you for playing!\n";
                         return;
                     }

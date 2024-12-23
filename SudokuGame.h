@@ -3,6 +3,7 @@
 
 #include "SudokuBoard.h"
 #include <string>
+using namespace std;
 
 class SudokuGame {
 private:
@@ -10,7 +11,7 @@ private:
     int difficulty;
 
     void clearScreen();
-    int getValidInput(const std::string& prompt, int min, int max);
+    int getValidInput(const string& prompt, int min, int max);
     void playGame();
 
 public:

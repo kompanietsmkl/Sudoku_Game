@@ -4,10 +4,11 @@
 #include <ctime>
 #include <random>
 #include <iostream>
+using namespace std;
 
 SudokuBoard::SudokuBoard() : 
-    board(SIZE, std::vector<int>(SIZE, 0)),
-    solution(SIZE, std::vector<int>(SIZE, 0)),
+    board(SIZE, vector<int>(SIZE, 0)),
+    solution(SIZE, vector<int>(SIZE, 0)),
     rowUsed(SIZE),
     colUsed(SIZE),
     boxUsed(SIZE) {}
@@ -19,9 +20,9 @@ void SudokuBoard::updateBitsets(int row, int col, int num, bool setValue) {
 }
 
 void SudokuBoard::initializeBitsets() {
-    rowUsed = std::vector<std::bitset<9>>(9, std::bitset<9>());
-    colUsed = std::vector<std::bitset<9>>(9, std::bitset<9>());
-    boxUsed = std::vector<std::bitset<9>>(9, std::bitset<9>());
+    rowUsed = vector<bitset<9>>(9, bitset<9>());
+    colUsed = vector<bitset<9>>(9, bitset<9>());
+    boxUsed = vector<bitset<9>>(9, bitset<9>());
     
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
@@ -55,7 +56,7 @@ void SudokuBoard::generateBaseGrid() {
 void SudokuBoard::transpose() {
     for(int i = 0; i < SIZE; i++) {
         for(int j = i + 1; j < SIZE; j++) {
-            std::swap(board[i][j], board[j][i]);
+            swap(board[i][j], board[j][i]);
         }
     }
     initializeBitsets();
@@ -66,7 +67,7 @@ void SudokuBoard::swapRowsInBlock() {
     int row1 = block * SUBGRID_SIZE + rand() % SUBGRID_SIZE;
     int row2 = block * SUBGRID_SIZE + rand() % SUBGRID_SIZE;
     if(row1 != row2) {
-        std::swap(board[row1], board[row2]);
+        swap(board[row1], board[row2]);
     }
     initializeBitsets();
 }
@@ -77,7 +78,7 @@ void SudokuBoard::swapColsInBlock() {
     int col2 = block * SUBGRID_SIZE + rand() % SUBGRID_SIZE;
     if(col1 != col2) {
         for(int i = 0; i < SIZE; i++) {
-            std::swap(board[i][col1], board[i][col2]);
+            swap(board[i][col1], board[i][col2]);
         }
     }
     initializeBitsets();
@@ -88,7 +89,7 @@ void SudokuBoard::swapRowBlocks() {
     int block2 = rand() % SUBGRID_SIZE;
     if (block1 != block2) {
         for (int i = 0; i < SUBGRID_SIZE; i++) {
-            std::swap(board[block1 * SUBGRID_SIZE + i], board[block2 * SUBGRID_SIZE + i]);
+            swap(board[block1 * SUBGRID_SIZE + i], board[block2 * SUBGRID_SIZE + i]);
         }
     }
 }
@@ -99,7 +100,7 @@ void SudokuBoard::swapColBlocks() {
     if (block1 != block2) {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SUBGRID_SIZE; j++) {
-                std::swap(board[i][block1 * SUBGRID_SIZE + j], board[i][block2 * SUBGRID_SIZE + j]);
+                swap(board[i][block1 * SUBGRID_SIZE + j], board[i][block2 * SUBGRID_SIZE + j]);
             }
         }
     }
@@ -120,7 +121,7 @@ void SudokuBoard::randomizeGrid() {
 
 void SudokuBoard::removeNumbers(int numToRemove) {
     solution = board;
-    std::vector<std::pair<int, int>> positions;
+    vector<pair<int, int>> positions;
     
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
@@ -128,9 +129,9 @@ void SudokuBoard::removeNumbers(int numToRemove) {
         }
     }
     
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::shuffle(positions.begin(), positions.end(), gen);
+    random_device rd;
+    mt19937 gen(rd());
+    shuffle(positions.begin(), positions.end(), gen);
     
     for(int i = 0; i < numToRemove && i < positions.size(); i++) {
         int row = positions[i].first;
@@ -148,15 +149,15 @@ bool SudokuBoard::isValidMove(int row, int col, int num) const {
 
 void SudokuBoard::makeMove(int row, int col, int num) {
     if(row < 0 || row >= SIZE || col < 0 || col >= SIZE || num < 1 || num > 9) {
-        throw std::invalid_argument("Invalid input values");
+        throw invalid_argument("Invalid input values");
     }
     
     if(board[row][col] != 0) {
-        throw std::invalid_argument("Cell is already filled");
+        throw invalid_argument("Cell is already filled");
     }
     
     if(!isValidMove(row, col, num)) {
-        throw std::invalid_argument("Invalid move");
+        throw invalid_argument("Invalid move");
     }
 
     board[row][col] = num;
@@ -172,7 +173,7 @@ bool SudokuBoard::isSolved() const {
     return true;
 }
 
-std::pair<int, int> SudokuBoard::getHint() const {
+pair<int, int> SudokuBoard::getHint() const {
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
             if(board[i][j] == 0) {
@@ -188,30 +189,30 @@ int SudokuBoard::getSolutionValue(int row, int col) const {
 }
 
 void SudokuBoard::printBoard() const {
-    std::cout << "\n   ";
+    cout << "\n   ";
     for(int j = 0; j < SIZE; j++) {
-        std::cout << j + 1 << " ";
-        if((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) std::cout << "  ";
+        cout << j + 1 << " ";
+        if((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) cout << "  ";
     }
-    std::cout << "\n   ";
-    for(int j = 0; j < SIZE * 2 + 3; j++) std::cout << "-";
-    std::cout << "\n";
+    cout << "\n   ";
+    for(int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
+    cout << "\n";
 
     for(int i = 0; i < SIZE; i++) {
-        std::cout << i + 1 << "| ";
+        cout << i + 1 << "| ";
         for(int j = 0; j < SIZE; j++) {
-            if(board[i][j] == 0) std::cout << "_ ";
-            else std::cout << board[i][j] << " ";
-            if((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) std::cout << "| ";
+            if(board[i][j] == 0) cout << "_ ";
+            else cout << board[i][j] << " ";
+            if((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) cout << "| ";
         }
-        std::cout << "|\n";
+        cout << "|\n";
         if((i + 1) % SUBGRID_SIZE == 0 && i != SIZE - 1) {
-            std::cout << "   ";
-            for(int j = 0; j < SIZE * 2 + 3; j++) std::cout << "-";
-            std::cout << "\n";
+            cout << "   ";
+            for(int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
+            cout << "\n";
         }
     }
-    std::cout << "   ";
-    for(int j = 0; j < SIZE * 2 + 3; j++) std::cout << "-";
-    std::cout << "\n";
+    cout << "   ";
+    for(int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
+    cout << "\n";
 }

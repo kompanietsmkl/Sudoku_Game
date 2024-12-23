@@ -4,17 +4,18 @@
 #include <vector>
 #include <bitset>
 #include <utility>
+using namespace std;
 
 class SudokuBoard {
 private:
     static const int SIZE = 9;
     static const int SUBGRID_SIZE = 3;
     
-    std::vector<std::vector<int>> board;
-    std::vector<std::vector<int>> solution;
-    std::vector<std::bitset<9>> rowUsed;
-    std::vector<std::bitset<9>> colUsed;
-    std::vector<std::bitset<9>> boxUsed;
+    vector<vector<int>> board;
+    vector<vector<int>> solution;
+    vector<bitset<9>> rowUsed;
+    vector<bitset<9>> colUsed;
+    vector<bitset<9>> boxUsed;
 
     void updateBitsets(int row, int col, int num, bool setValue);
     void initializeBitsets();
@@ -32,7 +33,7 @@ public:
     bool isValidMove(int row, int col, int num) const;
     void makeMove(int row, int col, int num);
     bool isSolved() const;
-    std::pair<int, int> getHint() const;
+    pair<int, int> getHint() const;
     int getSolutionValue(int row, int col) const;
     void printBoard() const;
 };

@@ -115,11 +115,13 @@ void SudokuGame::playGame() {
                         board.printBoard();
                         cout << "\t\t\t<================================================================================>" << endl;
                         cout << "\t\t\t|                                Congratulations!                                |" << endl;
-                        cout << "\t\t\t|                           You have solved the puzzle!                         |" << endl;
+                        cout << "\t\t\t|                           You have solved the puzzle!                          |" << endl;
                         cout << "\t\t\t<================================================================================>" << endl;
 
                         cout << "Press Enter to exit...";
-                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cin.clear(); 
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                        cin.get();
                         return;
                     }
                     break;
@@ -142,6 +144,9 @@ void SudokuGame::playGame() {
                 }
                 case 4: {
                     cout << "\nThank you for playing!\n";
+                    cin.clear(); 
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                    cin.get();
                     return;
                 }
                 default: {

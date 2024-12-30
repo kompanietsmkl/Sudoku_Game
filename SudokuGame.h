@@ -12,6 +12,7 @@ private:
     int difficulty;
     Leaderboard leaderboard;
     string playerName;
+    int score;
 
     void clearScreen();
     int getValidInput(const string& prompt, int min, int max);

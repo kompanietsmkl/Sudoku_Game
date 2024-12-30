@@ -1,4 +1,6 @@
-﻿#include "SudokuGame.h"
+﻿//g++ main.cpp SudokuGame.cpp SudokuBoard.cpp Leaderboard.cpp -o sudoku
+
+#include "SudokuGame.h"
 #include <iostream>
 using namespace std;
 

@@ -33,7 +33,20 @@ void Leaderboard::save() {
 }
 
 void Leaderboard::addResult(const string& playerName, int score) {
-    scores.emplace_back(playerName, score);
+
+    auto it = find_if(scores.begin(), scores.end(), [&](const auto& entry) {
+        return entry.first == playerName;
+    });
+
+    if (it != scores.end()) {
+        
+        if (score > it->second) {
+            it->second = score;
+        }
+    } else {
+        scores.emplace_back(playerName, score);
+    }
+
     sort(scores.begin(), scores.end(), [](const auto& a, const auto& b) {
         return b.second > a.second;
     });

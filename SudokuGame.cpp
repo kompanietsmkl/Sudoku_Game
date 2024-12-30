@@ -4,7 +4,7 @@
 #include <cstdlib>
 using namespace std;
 
-SudokuGame::SudokuGame() : leaderboard("leaderboard.txt"), difficulty(0) {}
+SudokuGame::SudokuGame() : leaderboard("leaderboard.txt"), difficulty(0),score(0) {}
 
 void SudokuGame::clearScreen() {
     #ifdef _WIN32
@@ -14,6 +14,21 @@ void SudokuGame::clearScreen() {
     #endif
 }
 
+/*************  ✨ Codeium Command ⭐  *************/
+/**
+ * Prompts the user for input and validates it.
+ * 
+ * Displays the given prompt message and reads an integer input from the user.
+ * Ensures that the input is a valid integer within the specified range [min, max].
+ * If the input is invalid, it prompts the user again until a valid input is entered.
+ * 
+ * @param prompt A string message to display when asking for input.
+ * @param min The minimum acceptable integer value.
+ * @param max The maximum acceptable integer value.
+ * @return A valid integer input from the user within the range [min, max].
+ */
+
+/******  8d25c9ae-2ffb-41bc-93fb-7b6c1ed67bed  *******/
 int SudokuGame::getValidInput(const string& prompt, int min, int max) {
     int value;
     while (true) {
@@ -36,14 +51,14 @@ void SudokuGame::start() {
     srand(time(0));
     clearScreen();
 
-    cout << "Enter your nickname: ";
-    cin >> playerName;
-
     cout << "\t\t\t<================================================================================>" << endl;
     cout << "\t\t\t|                        WELCOME TO SUDOKU Game!                                 |" << endl;
     cout << "\t\t\t|             Fill in the missing numbers to solve the puzzle.                   |" << endl;
     cout << "\t\t\t<================================================================================>" << endl;
-        
+
+    cout << "Enter your nickname: ";
+    cin >> playerName;    
+
     while(true) {
         cout << "Choose difficulty level:\n";
         cout << "1. Very Easy\n";
@@ -66,6 +81,8 @@ void SudokuGame::start() {
         case 4: numToRemove = 60; break;
     }
     
+    score = difficulty * 100;
+    
     board.removeNumbers(numToRemove);
     playGame();
 }
@@ -80,8 +97,9 @@ void SudokuGame::playGame() {
         cout << "[2] - Get a hint\n";
         cout << "[3] - Start a new game\n";
         cout << "[4] - Exit\n";
+        cout << "[5] - Leaderboard\n";
 
-        int choice = getValidInput("Your choice: ", 1, 4);
+        int choice = getValidInput("Your choice: ", 1, 5);
 
         try {
             switch(choice) {
@@ -120,7 +138,7 @@ void SudokuGame::playGame() {
                         cout << "\t\t\t|                                Congratulations!                                |" << endl;
                         cout << "\t\t\t|                           You have solved the puzzle!                          |" << endl;
                         cout << "\t\t\t<================================================================================>" << endl;
-                        leaderboard.addResult(playerName, difficulty * 100); // Example scoring
+                        leaderboard.addResult(playerName, score); // Example scoring
                         leaderboard.display();
 
                         cout << "Press Enter to exit...";
@@ -135,6 +153,7 @@ void SudokuGame::playGame() {
                     auto hint = board.getHint();
                     if(hint.first != -1) {
                         cout << "Hint: Cell (" << hint.first + 1 << ", " << hint.second + 1 << ") should be " << board.getSolutionValue(hint.first, hint.second) << "\n";
+                        score -= 5;
                     } else {
                         cout << "No empty cells left!\n";
                     }

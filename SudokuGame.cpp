@@ -138,7 +138,7 @@ void SudokuGame::playGame() {
                         cout << "\t\t\t|                                Congratulations!                                |" << endl;
                         cout << "\t\t\t|                           You have solved the puzzle!                          |" << endl;
                         cout << "\t\t\t<================================================================================>" << endl;
-                        leaderboard.addResult(playerName, score); // Example scoring
+                        leaderboard.addResult(playerName, score); 
                         leaderboard.display();
 
                         cout << "Press Enter to exit...";
@@ -172,6 +172,13 @@ void SudokuGame::playGame() {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
                     cin.get();
                     return;
+                }
+                case 5: {
+                    cout << "Leaderboard:\n";
+                    leaderboard.display();
+                    cout << "Press Enter to continue...";
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    break;
                 }
                 default: {
                     cout << "Invalid choice!\n";

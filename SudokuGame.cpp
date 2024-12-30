@@ -4,7 +4,7 @@
 #include <cstdlib>
 using namespace std;
 
-SudokuGame::SudokuGame() : difficulty(0) {}
+SudokuGame::SudokuGame() : leaderboard("leaderboard.txt"), difficulty(0) {}
 
 void SudokuGame::clearScreen() {
     #ifdef _WIN32
@@ -35,6 +35,9 @@ int SudokuGame::getValidInput(const string& prompt, int min, int max) {
 void SudokuGame::start() {
     srand(time(0));
     clearScreen();
+
+    cout << "Enter your nickname: ";
+    cin >> playerName;
 
     cout << "\t\t\t<================================================================================>" << endl;
     cout << "\t\t\t|                        WELCOME TO SUDOKU Game!                                 |" << endl;
@@ -117,6 +120,8 @@ void SudokuGame::playGame() {
                         cout << "\t\t\t|                                Congratulations!                                |" << endl;
                         cout << "\t\t\t|                           You have solved the puzzle!                          |" << endl;
                         cout << "\t\t\t<================================================================================>" << endl;
+                        leaderboard.addResult(playerName, difficulty * 100); // Example scoring
+                        leaderboard.display();
 
                         cout << "Press Enter to exit...";
                         cin.clear(); 

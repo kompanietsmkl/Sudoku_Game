@@ -6,6 +6,7 @@
 #include <iostream>
 using namespace std;
 
+// Constructor: Initializes the Sudoku board and supporting structures.
 SudokuBoard::SudokuBoard() : 
     board(SIZE, vector<int>(SIZE, 0)),
     solution(SIZE, vector<int>(SIZE, 0)),
@@ -13,12 +14,14 @@ SudokuBoard::SudokuBoard() :
     colUsed(SIZE),
     boxUsed(SIZE) {}
 
+// Updates bitsets used to track which numbers are already present in rows, columns, and boxes.
 void SudokuBoard::updateBitsets(int row, int col, int num, bool setValue) {
     rowUsed[row][num-1] = setValue;
     colUsed[col][num-1] = setValue;
     boxUsed[(row/3)*3 + col/3][num-1] = setValue;
 }
 
+// Initializes bitsets based on the current board state.
 void SudokuBoard::initializeBitsets() {
     rowUsed = vector<bitset<9>>(9, bitset<9>());
     colUsed = vector<bitset<9>>(9, bitset<9>());
@@ -33,6 +36,7 @@ void SudokuBoard::initializeBitsets() {
     }
 }
 
+// Fills the board with a base valid Sudoku grid.
 void SudokuBoard::generateBaseGrid() {
     const int base[SIZE][SIZE] = {
         {1, 2, 3, 4, 5, 6, 7, 8, 9},
@@ -53,6 +57,7 @@ void SudokuBoard::generateBaseGrid() {
     initializeBitsets();
 }
 
+// Transposes the board (swaps rows with columns) to create a new variation.
 void SudokuBoard::transpose() {
     for(int i = 0; i < SIZE; i++) {
         for(int j = i + 1; j < SIZE; j++) {
@@ -62,6 +67,7 @@ void SudokuBoard::transpose() {
     initializeBitsets();
 }
 
+// Swaps two rows within the same subgrid.
 void SudokuBoard::swapRowsInBlock() {
     int block = rand() % SUBGRID_SIZE;
     int row1 = block * SUBGRID_SIZE + rand() % SUBGRID_SIZE;
@@ -72,6 +78,7 @@ void SudokuBoard::swapRowsInBlock() {
     initializeBitsets();
 }
 
+// Swaps two columns within the same subgrid.
 void SudokuBoard::swapColsInBlock() {
     int block = rand() % SUBGRID_SIZE;
     int col1 = block * SUBGRID_SIZE + rand() % SUBGRID_SIZE;
@@ -84,6 +91,7 @@ void SudokuBoard::swapColsInBlock() {
     initializeBitsets();
 }
 
+// Swaps entire row blocks to create a new variation of the grid.
 void SudokuBoard::swapRowBlocks() {
     int block1 = rand() % SUBGRID_SIZE;
     int block2 = rand() % SUBGRID_SIZE;
@@ -94,6 +102,7 @@ void SudokuBoard::swapRowBlocks() {
     }
 }
 
+// Swaps entire column blocks to create a new variation of the grid.
 void SudokuBoard::swapColBlocks() {
     int block1 = rand() % SUBGRID_SIZE;
     int block2 = rand() % SUBGRID_SIZE;
@@ -106,6 +115,7 @@ void SudokuBoard::swapColBlocks() {
     }
 }
 
+// Randomizes the grid by performing a series of transformations.
 void SudokuBoard::randomizeGrid() {
     int numShuffles = 10 + rand() % 10;
     for(int i = 0; i < numShuffles; i++) {
@@ -119,11 +129,13 @@ void SudokuBoard::randomizeGrid() {
     }
 }
 
+// Removes numbers from the grid to create the puzzle, ensuring they can be re-added by the player.
 void SudokuBoard::removeNumbers(int numToRemove) {
-    solution = board;
+    solution = board; // Store the solution for validation.
     vector<pair<int, int>> positions;
     isEditable = vector<vector<bool>>(SIZE, vector<bool>(SIZE, false));
     
+    // Collect all positions on the board.
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
             positions.push_back({i, j});
@@ -132,23 +144,25 @@ void SudokuBoard::removeNumbers(int numToRemove) {
     
     random_device rd;
     mt19937 gen(rd());
-    shuffle(positions.begin(), positions.end(), gen);
+    shuffle(positions.begin(), positions.end(), gen); // Randomize positions.
     
     for(int i = 0; i < numToRemove && i < positions.size(); i++) {
         int row = positions[i].first;
         int col = positions[i].second;
-        board[row][col] = 0;
-        isEditable[row][col] = true;
+        board[row][col] = 0; // Clear the cell.
+        isEditable[row][col] = true; // Mark it as editable.
         updateBitsets(row, col, solution[row][col], false);
     }
 }
 
+// Checks if a move is valid (i.e., does not conflict with existing numbers).
 bool SudokuBoard::isValidMove(int row, int col, int num) const {
     return !rowUsed[row][num-1] && 
            !colUsed[col][num-1] && 
            !boxUsed[(row/3)*3 + col/3][num-1];
 }
 
+// Makes a move by placing a number on the board if it's valid.
 void SudokuBoard::makeMove(int row, int col, int num) {
     if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || num < 1 || num > 9) {
         throw invalid_argument("Invalid input values");
@@ -158,13 +172,13 @@ void SudokuBoard::makeMove(int row, int col, int num) {
         throw invalid_argument("This cell cannot be changed");
     }
 
-    // Если клетка уже содержит значение, удаляем его перед проверкой
+    // If the cell already contains a value, remove it before placing the new one.
     if (board[row][col] != 0) {
         updateBitsets(row, col, board[row][col], false);
     }
 
     if (!isValidMove(row, col, num)) {
-        // Возвращаем предыдущее значение в битовые множества, если новое значение недопустимо
+        // Revert the previous value if the new one is invalid.
         if (board[row][col] != 0) {
             updateBitsets(row, col, board[row][col], true);
         }
@@ -175,6 +189,7 @@ void SudokuBoard::makeMove(int row, int col, int num) {
     updateBitsets(row, col, num, true);
 }
 
+// Deletes a number from the board, making the cell empty.
 void SudokuBoard::deleteMove(int row, int col) {
     if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) {
         throw invalid_argument("Invalid input values");
@@ -189,9 +204,10 @@ void SudokuBoard::deleteMove(int row, int col) {
     }
 
     updateBitsets(row, col, board[row][col], false);
-    board[row][col] = 0; // Очищаем значение клетки
+    board[row][col] = 0; // Clear the cell.
 }
 
+// Checks if the board is solved by comparing it with the solution.
 bool SudokuBoard::isSolved() const {
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
@@ -201,6 +217,7 @@ bool SudokuBoard::isSolved() const {
     return true;
 }
 
+// Provides a hint by identifying the first empty cell and its solution.
 pair<int, int> SudokuBoard::getHint() const {
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
@@ -212,10 +229,12 @@ pair<int, int> SudokuBoard::getHint() const {
     return {-1, -1};
 }
 
+// Retrieves the solution value for a specific cell.
 int SudokuBoard::getSolutionValue(int row, int col) const {
     return solution[row][col];
 }
 
+// Checks if the board is fully filled.
 bool SudokuBoard::isBoardFull() const {
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
@@ -225,6 +244,7 @@ bool SudokuBoard::isBoardFull() const {
     return true;
 }
 
+// Compares the current board with the solution to identify errors.
 vector<vector<bool>> SudokuBoard::checkBoard() const {
     vector<vector<bool>> errors(SIZE, vector<bool>(SIZE, false));
     
@@ -245,6 +265,7 @@ const string BLUE_COLOR = "\033[96m";
 const string WHITE_COLOR = "\033[37m";
 const string RED_COLOR = "\033[31m";
 
+// Displays the Sudoku board in a formatted and color-coded way.
 void SudokuBoard::printBoard() const {
     vector<vector<bool>> errors = checkBoard();
     bool showErrors = isBoardFull();
@@ -264,18 +285,17 @@ void SudokuBoard::printBoard() const {
             if (board[i][j] == 0) {
                 cout << "_ ";
             } else {
-                // Выбор цвета текста
                 if (isEditable[i][j]) {
                     if (errors[i][j]) {
-                        cout << RED_COLOR; // Красный для ошибок
+                        cout << RED_COLOR;
                     } else {
-                        cout << BLUE_COLOR; // Голубой для пользовательских ходов
+                        cout << BLUE_COLOR;
                     }
                 } else {
-                    cout << WHITE_COLOR; // Белый для изначальных значений
+                    cout << WHITE_COLOR;
                 }
 
-                cout << board[i][j] << RESET_COLOR << " "; // Сбрасываем цвет
+                cout << board[i][j] << RESET_COLOR << " ";
             }
             if ((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) cout << "| ";
         }

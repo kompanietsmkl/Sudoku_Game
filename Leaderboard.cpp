@@ -39,10 +39,7 @@ void Leaderboard::addResult(const string& playerName, int score) {
     });
 
     if (it != scores.end()) {
-        
-        if (score > it->second) {
-            it->second = score;
-        }
+        it->second = score;
     } else {
         scores.emplace_back(playerName, score);
     }

@@ -14,21 +14,6 @@ void SudokuGame::clearScreen() {
     #endif
 }
 
-/*************  ✨ Codeium Command ⭐  *************/
-/**
- * Prompts the user for input and validates it.
- * 
- * Displays the given prompt message and reads an integer input from the user.
- * Ensures that the input is a valid integer within the specified range [min, max].
- * If the input is invalid, it prompts the user again until a valid input is entered.
- * 
- * @param prompt A string message to display when asking for input.
- * @param min The minimum acceptable integer value.
- * @param max The maximum acceptable integer value.
- * @return A valid integer input from the user within the range [min, max].
- */
-
-/******  8d25c9ae-2ffb-41bc-93fb-7b6c1ed67bed  *******/
 int SudokuGame::getValidInput(const string& prompt, int min, int max) {
     int value;
     while (true) {
@@ -56,8 +41,10 @@ void SudokuGame::start() {
     cout << "\t\t\t|             Fill in the missing numbers to solve the puzzle.                   |" << endl;
     cout << "\t\t\t<================================================================================>" << endl;
 
-    cout << "Enter your nickname: ";
-    cin >> playerName;    
+    do {
+        cout << "ENTER YOUR NICKNAME (3-20 chars): ";
+        cin >> playerName;
+    } while (playerName.length() < 3 || playerName.length() > 20);
 
     while(true) {
         cout << "Choose difficulty level:\n";
@@ -100,7 +87,7 @@ void SudokuGame::playGame() {
         cout << "[5] - Leaderboard\n";
         cout << "[6] - Exit\n";
 
-        int choice = getValidInput("Your choice: ", 1, 5);
+        int choice = getValidInput("Your choice: ", 1, 6);
 
         try {
             switch(choice) {
@@ -199,6 +186,7 @@ void SudokuGame::playGame() {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
                     cin.get();
                     return;
+                    
                 }
                 default: {
                     cout << "Invalid choice!\n";

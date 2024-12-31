@@ -216,31 +216,63 @@ int SudokuBoard::getSolutionValue(int row, int col) const {
     return solution[row][col];
 }
 
+bool SudokuBoard::isBoardFull() const {
+    for(int i = 0; i < SIZE; i++) {
+        for(int j = 0; j < SIZE; j++) {
+            if(board[i][j] == 0) return false;
+        }
+    }
+    return true;
+}
+
+vector<vector<bool>> SudokuBoard::checkBoard() const {
+    vector<vector<bool>> errors(SIZE, vector<bool>(SIZE, false));
+    
+    if (isBoardFull()) {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (isEditable[i][j] && board[i][j] != solution[i][j]) {
+                    errors[i][j] = true;
+                }
+            }
+        }
+    }
+    return errors;
+}
+
 const string RESET_COLOR = "\033[0m";
 const string BLUE_COLOR = "\033[96m";
 const string WHITE_COLOR = "\033[37m";
+const string RED_COLOR = "\033[31m";
 
 void SudokuBoard::printBoard() const {
+    vector<vector<bool>> errors = checkBoard();
+    bool showErrors = isBoardFull();
+
     cout << "\n   ";
-    for(int j = 0; j < SIZE; j++) {
+    for (int j = 0; j < SIZE; j++) {
         cout << j + 1 << " ";
-        if((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) cout << "  ";
+        if ((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) cout << "  ";
     }
     cout << "\n   ";
-    for(int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
+    for (int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
     cout << "\n";
 
     for (int i = 0; i < SIZE; i++) {
         cout << i + 1 << "| ";
         for (int j = 0; j < SIZE; j++) {
             if (board[i][j] == 0) {
-                cout << "_ "; // Пустая клетка
+                cout << "_ ";
             } else {
                 // Выбор цвета текста
                 if (isEditable[i][j]) {
-                    cout << BLUE_COLOR; // Голубой для пользовательских ходов
+                    if (errors[i][j]) {
+                        cout << RED_COLOR; // Красный для ошибок
+                    } else {
+                        cout << BLUE_COLOR; // Голубой для пользовательских ходов
+                    }
                 } else {
-                    cout << WHITE_COLOR; // Белый для исходных значений
+                    cout << WHITE_COLOR; // Белый для изначальных значений
                 }
 
                 cout << board[i][j] << RESET_COLOR << " "; // Сбрасываем цвет
@@ -255,6 +287,6 @@ void SudokuBoard::printBoard() const {
         }
     }
     cout << "   ";
-    for(int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
+    for (int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
     cout << "\n";
 }

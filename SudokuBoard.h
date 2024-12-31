@@ -23,6 +23,7 @@ private:
 
 public:
     SudokuBoard();
+    vector<vector<bool>> checkBoard() const;
     void generateBaseGrid();
     void transpose();
     void swapRowsInBlock();
@@ -35,6 +36,7 @@ public:
     bool isValidMove(int row, int col, int num) const;
     void makeMove(int row, int col, int num);
     bool isSolved() const;
+    bool isBoardFull() const;
     pair<int, int> getHint() const;
     int getSolutionValue(int row, int col) const;
     void printBoard() const;

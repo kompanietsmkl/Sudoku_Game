@@ -96,8 +96,9 @@ void SudokuGame::playGame() {
         cout << "[1] - Make a move\n";
         cout << "[2] - Get a hint\n";
         cout << "[3] - Start a new game\n";
-        cout << "[4] - Exit\n";
+        cout << "[4] - Edit cell\n";
         cout << "[5] - Leaderboard\n";
+        cout << "[6] - Exit\n";
 
         int choice = getValidInput("Your choice: ", 1, 5);
 
@@ -167,11 +168,23 @@ void SudokuGame::playGame() {
                     return;
                 }
                 case 4: {
-                    cout << "\nThank you for playing!\n";
-                    cin.clear(); 
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-                    cin.get();
-                    return;
+                    cout << "Choose an action:\n";
+                    cout << "[1] - Remove value from a cell\n";
+                    cout << "[2] - Change value in a cell\n";
+                    int editChoice = getValidInput("Your choice: ", 1, 2);
+
+                    int row, col, num;
+                    cout << "Enter row (1-9) and column (1-9): ";
+                    cin >> row >> col;
+
+                    if (editChoice == 1) { // Remove
+                        board.deleteMove(row - 1, col - 1);
+                    } else if (editChoice == 2) { // Change
+                        cout << "Enter new number (1-9): ";
+                        cin >> num;
+                        board.makeMove(row - 1, col - 1, num);
+                    }
+                    break;
                 }
                 case 5: {
                     cout << "Leaderboard:\n";
@@ -179,6 +192,13 @@ void SudokuGame::playGame() {
                     cout << "Press Enter to continue...";
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     break;
+                }
+                case 6: {
+                    cout << "\nThank you for playing!\n";
+                    cin.clear(); 
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                    cin.get();
+                    return;
                 }
                 default: {
                     cout << "Invalid choice!\n";

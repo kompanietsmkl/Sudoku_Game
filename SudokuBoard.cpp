@@ -122,6 +122,7 @@ void SudokuBoard::randomizeGrid() {
 void SudokuBoard::removeNumbers(int numToRemove) {
     solution = board;
     vector<pair<int, int>> positions;
+    isEditable = vector<vector<bool>>(SIZE, vector<bool>(SIZE, false));
     
     for(int i = 0; i < SIZE; i++) {
         for(int j = 0; j < SIZE; j++) {
@@ -137,6 +138,7 @@ void SudokuBoard::removeNumbers(int numToRemove) {
         int row = positions[i].first;
         int col = positions[i].second;
         board[row][col] = 0;
+        isEditable[row][col] = true;
         updateBitsets(row, col, solution[row][col], false);
     }
 }
@@ -148,20 +150,46 @@ bool SudokuBoard::isValidMove(int row, int col, int num) const {
 }
 
 void SudokuBoard::makeMove(int row, int col, int num) {
-    if(row < 0 || row >= SIZE || col < 0 || col >= SIZE || num < 1 || num > 9) {
+    if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || num < 1 || num > 9) {
         throw invalid_argument("Invalid input values");
     }
-    
-    if(board[row][col] != 0) {
-        throw invalid_argument("Cell is already filled");
+
+    if (!isEditable[row][col]) {
+        throw invalid_argument("This cell cannot be changed");
     }
-    
-    if(!isValidMove(row, col, num)) {
-        throw invalid_argument("Invalid move");
+
+    // Если клетка уже содержит значение, удаляем его перед проверкой
+    if (board[row][col] != 0) {
+        updateBitsets(row, col, board[row][col], false);
+    }
+
+    if (!isValidMove(row, col, num)) {
+        // Возвращаем предыдущее значение в битовые множества, если новое значение недопустимо
+        if (board[row][col] != 0) {
+            updateBitsets(row, col, board[row][col], true);
+        }
+        throw invalid_argument("Invalid move: number conflicts with row, column, or block");
     }
 
     board[row][col] = num;
     updateBitsets(row, col, num, true);
+}
+
+void SudokuBoard::deleteMove(int row, int col) {
+    if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) {
+        throw invalid_argument("Invalid input values");
+    }
+
+    if (!isEditable[row][col]) {
+        throw invalid_argument("This cell cannot be changed");
+    }
+
+    if (board[row][col] == 0) {
+        throw invalid_argument("Cell is already empty");
+    }
+
+    updateBitsets(row, col, board[row][col], false);
+    board[row][col] = 0; // Очищаем значение клетки
 }
 
 bool SudokuBoard::isSolved() const {
@@ -188,6 +216,10 @@ int SudokuBoard::getSolutionValue(int row, int col) const {
     return solution[row][col];
 }
 
+const string RESET_COLOR = "\033[0m";
+const string BLUE_COLOR = "\033[96m";
+const string WHITE_COLOR = "\033[37m";
+
 void SudokuBoard::printBoard() const {
     cout << "\n   ";
     for(int j = 0; j < SIZE; j++) {
@@ -198,17 +230,27 @@ void SudokuBoard::printBoard() const {
     for(int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
     cout << "\n";
 
-    for(int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
         cout << i + 1 << "| ";
-        for(int j = 0; j < SIZE; j++) {
-            if(board[i][j] == 0) cout << "_ ";
-            else cout << board[i][j] << " ";
-            if((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) cout << "| ";
+        for (int j = 0; j < SIZE; j++) {
+            if (board[i][j] == 0) {
+                cout << "_ "; // Пустая клетка
+            } else {
+                // Выбор цвета текста
+                if (isEditable[i][j]) {
+                    cout << BLUE_COLOR; // Голубой для пользовательских ходов
+                } else {
+                    cout << WHITE_COLOR; // Белый для исходных значений
+                }
+
+                cout << board[i][j] << RESET_COLOR << " "; // Сбрасываем цвет
+            }
+            if ((j + 1) % SUBGRID_SIZE == 0 && j != SIZE - 1) cout << "| ";
         }
         cout << "|\n";
-        if((i + 1) % SUBGRID_SIZE == 0 && i != SIZE - 1) {
+        if ((i + 1) % SUBGRID_SIZE == 0 && i != SIZE - 1) {
             cout << "   ";
-            for(int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
+            for (int j = 0; j < SIZE * 2 + 3; j++) cout << "-";
             cout << "\n";
         }
     }

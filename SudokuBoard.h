@@ -13,6 +13,7 @@ private:
     
     vector<vector<int>> board;
     vector<vector<int>> solution;
+    vector<vector<bool>> isEditable;
     vector<bitset<9>> rowUsed;
     vector<bitset<9>> colUsed;
     vector<bitset<9>> boxUsed;
@@ -30,6 +31,7 @@ public:
     void swapColBlocks();
     void randomizeGrid();
     void removeNumbers(int numToRemove);
+    void deleteMove(int row, int col);
     bool isValidMove(int row, int col, int num) const;
     void makeMove(int row, int col, int num);
     bool isSolved() const;

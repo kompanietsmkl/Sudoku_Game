@@ -92,7 +92,7 @@ void SudokuGame::playGame() {
         cout << "[1] - Make a move\n";
         cout << "[2] - Get a hint\n";
         cout << "[3] - Start a new game\n";
-        cout << "[4] - Edit cell\n";
+        cout << "[4] - Delete a cell\n";
         cout << "[5] - Leaderboard\n";
         cout << "[6] - Exit\n";
 
@@ -163,23 +163,11 @@ void SudokuGame::playGame() {
                     start();
                     return;
                 }
-                case 4: { // Edit a cell.
-                    cout << "Choose an action:\n";
-                    cout << "[1] - Remove value from a cell\n";
-                    cout << "[2] - Change value in a cell\n";
-                    int editChoice = getValidInput("Your choice: ", 1, 2);
-
+                case 4: { // Delete a cell.
                     int row, col, num;
                     cout << "Enter row (1-9) and column (1-9): ";
                     cin >> row >> col;
-
-                    if (editChoice == 1) { // Remove
-                        board.deleteMove(row - 1, col - 1);
-                    } else if (editChoice == 2) { // Change
-                        cout << "Enter new number (1-9): ";
-                        cin >> num;
-                        board.makeMove(row - 1, col - 1, num);
-                    }
+                    board.deleteMove(row - 1, col - 1);
                     break;
                 }
                 case 5: { // Display leaderboard.

@@ -5,6 +5,9 @@
 #include "Leaderboard.h"
 #include <string>
 #include <chrono>
+#include <thread>
+#include <atomic>
+#include <mutex>
 using namespace std;
 using namespace std::chrono;
 
@@ -17,18 +20,23 @@ private:
     int score;
 
     time_point<system_clock> startTime;
-    int elapsedSeconds;
-    bool timerRunning;
+    atomic<int> elapsedSeconds;
+    atomic<bool> timerRunning;
+    thread timerThread;
+    mutex consoleMutex;
 
     void clearScreen();
     int getValidInput(const string& prompt, int min, int max);
     void playGame();
-    void updateTimer();
     void startTimer();
+    void stopTimer();
     string formatTime(int seconds);
+    void timerLoop();
+    void printGameState();
 
 public:
     SudokuGame();
+    ~SudokuGame();
     void start();
 };
 

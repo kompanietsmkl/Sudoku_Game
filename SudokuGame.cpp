@@ -2,10 +2,17 @@
 #include <iostream>
 #include <limits>
 #include <cstdlib>
+#include <thread>
+#include <iomanip>
 using namespace std;
 
 // Constructor: Initializes the game, sets default values for leaderboard, difficulty, and score.
-SudokuGame::SudokuGame() : leaderboard("leaderboard.txt"), difficulty(0), score(0) {}
+SudokuGame::SudokuGame() 
+    : leaderboard("leaderboard.txt"), 
+    difficulty(0), 
+    score(0),
+    elapsedSeconds(0),
+    timerRunning(false) {}
 
 // Clears the screen based on the operating system.
 void SudokuGame::clearScreen() {
@@ -14,6 +21,31 @@ void SudokuGame::clearScreen() {
     #else
         system("clear");
     #endif
+}
+
+void SudokuGame::startTimer() {
+    startTime = system_clock::now();
+    timerRunning = true;
+    elapsedSeconds = 0;
+}
+
+void SudokuGame::updateTimer() {
+    if (timerRunning) {
+        auto currentTime = system_clock::now();
+        elapsedSeconds = duration_cast<seconds>(currentTime - startTime).count();
+    }
+}
+
+string SudokuGame::formatTime(int seconds) {
+    int hours = seconds / 3600;
+    int minutes = (seconds % 3600) / 60;
+    int secs = seconds % 60;
+    
+    stringstream ss;
+    ss << setfill('0') << setw(2) << hours << ":"
+       << setfill('0') << setw(2) << minutes << ":"
+       << setfill('0') << setw(2) << secs;
+    return ss.str();
 }
 
 // Prompts the user for a valid integer input within a specified range.
@@ -39,6 +71,9 @@ int SudokuGame::getValidInput(const string& prompt, int min, int max) {
 void SudokuGame::start() {
     srand(time(0)); // Seed for random number generation.
     clearScreen();
+
+    startTime = system_clock::now();
+    timerRunning = true;
 
     // Display the welcome message.
     cout << "\t\t\t<================================================================================>" << endl;
@@ -78,6 +113,8 @@ void SudokuGame::start() {
 
     score = difficulty * 100; // Base score based on difficulty.
     board.removeNumbers(numToRemove); // Remove numbers to create the puzzle.
+
+    startTimer();
     playGame();
 }
 
@@ -85,6 +122,12 @@ void SudokuGame::start() {
 void SudokuGame::playGame() {
     while (true) {
         clearScreen();
+        updateTimer();
+
+        if (timerRunning) {
+            cout << "\nTime: " << formatTime(elapsedSeconds) << "\n";
+        }
+
         board.printBoard();
 
         // Display available actions.
@@ -129,19 +172,30 @@ void SudokuGame::playGame() {
 
                     // Check if the puzzle is solved.
                     if (board.isSolved()) {
+                        timerRunning = false;
                         clearScreen();
+                        updateTimer();
+
                         board.printBoard();
+                        cout << "\nFinal Time: " << formatTime(elapsedSeconds) << "\n";
+
                         cout << "\t\t\t<================================================================================>" << endl;
                         cout << "\t\t\t|                                Congratulations!                                |" << endl;
                         cout << "\t\t\t|                           You have solved the puzzle!                          |" << endl;
                         cout << "\t\t\t<================================================================================>" << endl;
+
+                        int timeBonus = max(0, 300 - elapsedSeconds); // Bonus fot solving under 5 minutes
+                        score += timeBonus / 10;
+
+                        cout << "Time Bonus: +" << (timeBonus / 10) << " points\n";
+                        cout << "Final Score: " << score << " points\n";
+
                         leaderboard.addResult(playerName, score);
                         leaderboard.display();
 
                         cout << "Press Enter to exit...";
                         cin.clear();
                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                        cin.get();
                         return;
                     }
                     break;
@@ -160,6 +214,7 @@ void SudokuGame::playGame() {
                 }
                 case 3: { // Start a new game.
                     cout << "\nStarting new game...\n";
+                    timerRunning = false;
                     start();
                     return;
                 }
@@ -179,9 +234,10 @@ void SudokuGame::playGame() {
                 }
                 case 6: { // Exit the game.
                     cout << "\nThank you for playing!\n";
+                    updateTimer();
+                    cout << "\nTime: " << formatTime(elapsedSeconds) << "\n";
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    cin.get();
                     return;
                 }
                 default: {

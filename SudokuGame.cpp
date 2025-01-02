@@ -184,10 +184,10 @@ void SudokuGame::playGame() {
                         cout << "\t\t\t|                           You have solved the puzzle!                          |" << endl;
                         cout << "\t\t\t<================================================================================>" << endl;
 
-                        int timeBonus = max(0, 300 - elapsedSeconds); // Bonus fot solving under 5 minutes
-                        score += timeBonus / 10;
+                        int timeBonus = max(0, 300 - elapsedSeconds)/10; // Bonus fot solving under 5 minutes
+                        score += timeBonus;
 
-                        cout << "Time Bonus: +" << (timeBonus / 10) << " points\n";
+                        cout << "Time Bonus: +" << (timeBonus) << " points\n";
                         cout << "Final Score: " << score << " points\n";
 
                         leaderboard.addResult(playerName, score);
@@ -196,6 +196,7 @@ void SudokuGame::playGame() {
                         cout << "Press Enter to exit...";
                         cin.clear();
                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cin.get();
                         return;
                     }
                     break;

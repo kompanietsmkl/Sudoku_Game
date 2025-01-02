@@ -2,7 +2,9 @@
 #include <iostream>
 #include <limits>
 #include <cstdlib>
+#include <atomic>
 #include <thread>
+#include <mutex>
 #include <iomanip>
 using namespace std;
 
@@ -14,6 +16,10 @@ SudokuGame::SudokuGame()
     elapsedSeconds(0),
     timerRunning(false) {}
 
+SudokuGame::~SudokuGame() {
+    stopTimer();
+}
+
 // Clears the screen based on the operating system.
 void SudokuGame::clearScreen() {
     #ifdef _WIN32
@@ -23,16 +29,32 @@ void SudokuGame::clearScreen() {
     #endif
 }
 
+void SudokuGame::timerLoop() {
+    while (timerRunning) {
+        this_thread::sleep_for(milliseconds(1000));
+        if (timerRunning) {
+            elapsedSeconds++;
+            
+            // Блокируем консоль для обновления экрана
+            lock_guard<mutex> lock(consoleMutex);
+            clearScreen();
+            printGameState();
+        }
+    }
+}
+
 void SudokuGame::startTimer() {
     startTime = system_clock::now();
     timerRunning = true;
     elapsedSeconds = 0;
+
+    timerThread = thread(&SudokuGame::timerLoop, this);
 }
 
-void SudokuGame::updateTimer() {
-    if (timerRunning) {
-        auto currentTime = system_clock::now();
-        elapsedSeconds = duration_cast<seconds>(currentTime - startTime).count();
+void SudokuGame::stopTimer() {
+    timerRunning = false;
+    if (timerThread.joinable()) {
+        timerThread.join();
     }
 }
 
@@ -118,26 +140,27 @@ void SudokuGame::start() {
     playGame();
 }
 
+void SudokuGame::printGameState() {
+    cout << "\nTime: " << formatTime(elapsedSeconds) << "\n";
+    board.printBoard();
+    
+    cout << "\nChoose action:\n";
+    cout << "[1] - Make a move\n";
+    cout << "[2] - Get a hint\n";
+    cout << "[3] - Start a new game\n";
+    cout << "[4] - Delete a cell\n";
+    cout << "[5] - Leaderboard\n";
+    cout << "[6] - Exit\n";
+}
+
 // Main game loop for playing the Sudoku game.
 void SudokuGame::playGame() {
     while (true) {
-        clearScreen();
-        updateTimer();
-
-        if (timerRunning) {
-            cout << "\nTime: " << formatTime(elapsedSeconds) << "\n";
+        {
+            lock_guard<mutex> lock(consoleMutex);  
+            printGameState();
+            clearScreen();
         }
-
-        board.printBoard();
-
-        // Display available actions.
-        cout << "\nChoose action:\n";
-        cout << "[1] - Make a move\n";
-        cout << "[2] - Get a hint\n";
-        cout << "[3] - Start a new game\n";
-        cout << "[4] - Delete a cell\n";
-        cout << "[5] - Leaderboard\n";
-        cout << "[6] - Exit\n";
 
         int choice = getValidInput("Your choice: ", 1, 6);
 
@@ -172,10 +195,10 @@ void SudokuGame::playGame() {
 
                     // Check if the puzzle is solved.
                     if (board.isSolved()) {
-                        timerRunning = false;
-                        clearScreen();
-                        updateTimer();
+                        stopTimer();
+                        lock_guard<mutex> lock(consoleMutex);
 
+                        clearScreen();
                         board.printBoard();
                         cout << "\nFinal Time: " << formatTime(elapsedSeconds) << "\n";
 
@@ -215,7 +238,7 @@ void SudokuGame::playGame() {
                 }
                 case 3: { // Start a new game.
                     cout << "\nStarting new game...\n";
-                    timerRunning = false;
+                    stopTimer();
                     start();
                     return;
                 }
@@ -234,8 +257,8 @@ void SudokuGame::playGame() {
                     break;
                 }
                 case 6: { // Exit the game.
+                    stopTimer();
                     cout << "\nThank you for playing!\n";
-                    updateTimer();
                     cout << "\nTime: " << formatTime(elapsedSeconds) << "\n";
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');

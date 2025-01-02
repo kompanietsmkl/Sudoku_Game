@@ -84,7 +84,7 @@ void SudokuGame::start() {
     // Prompt the user for their nickname.
     do {
         cout << "ENTER YOUR NICKNAME (3-20 chars): ";
-        cin >> playerName;
+        getline(cin, playerName);
     } while (playerName.length() < 3 || playerName.length() > 20);
 
     // Select the difficulty level.

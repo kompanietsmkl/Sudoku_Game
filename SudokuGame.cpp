@@ -227,7 +227,6 @@ void SudokuGame::playGame() {
                     break;
                 }
                 case 5: { // Display leaderboard.
-                    cout << "Leaderboard:\n";
                     leaderboard.display();
                     cout << "Press Enter to continue...";
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');

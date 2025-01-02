@@ -48,6 +48,23 @@ string SudokuGame::formatTime(int seconds) {
     return ss.str();
 }
 
+void SudokuGame::handleSolvePuzzle() {
+    clearScreen();
+    vector<vector<int>> customBoard;
+    solver.inputPuzzle(customBoard);
+    
+    cout << "\nEntered puzzle:\n";
+    solver.printBoard(customBoard);
+    
+    cout << "\nTrying to solve the puzzle...\n";
+    if(solver.solve(customBoard)) {
+        cout << "\nSolution found!\n";
+        solver.printBoard(customBoard);
+    } else {
+        cout << "\nNo solution exists for this puzzle!\n";
+    }
+}
+
 // Prompts the user for a valid integer input within a specified range.
 int SudokuGame::getValidInput(const string& prompt, int min, int max) {
     int value;
@@ -75,47 +92,87 @@ void SudokuGame::start() {
     startTime = system_clock::now();
     timerRunning = true;
 
-    // Display the welcome message.
-    cout << "\t\t\t<================================================================================>" << endl;
-    cout << "\t\t\t|                        WELCOME TO SUDOKU Game!                                 |" << endl;
-    cout << "\t\t\t|             Fill in the missing numbers to solve the puzzle.                   |" << endl;
-    cout << "\t\t\t<================================================================================>" << endl;
-
-    // Prompt the user for their nickname.
-    do {
-        cout << "ENTER YOUR NICKNAME (3-20 chars): ";
-        getline(cin, playerName);
-    } while (playerName.length() < 3 || playerName.length() > 20);
-
-    // Select the difficulty level.
     while (true) {
-        cout << "Choose difficulty level:\n";
-        cout << "1. Very Easy\n";
-        cout << "2. Easy\n";
-        cout << "3. Medium\n";
-        cout << "4. Hard\n";
-        difficulty = getValidInput("Your choice (1-4): ", 1, 4);
-        break;
+        clearScreen();
+        cout << "\t\t\t<================================================================================>" << endl;
+        cout << "\t\t\t|                        Welcome, dear user!                                     |" << endl;
+        cout << "\t\t\t|                    Choose an action to proceed                                 |" << endl;
+        cout << "\t\t\t<================================================================================>" << endl;
+
+        cout<< "[1] - Play a new game\n";
+        cout<< "[2] - Sudoku solver\n";
+        cout<< "[3] - Leaderboard\n";
+        cout<< "[4] - Exit\n";
+
+        int choice = getValidInput("Your choice: ", 1, 4);
+
+        switch (choice) {
+
+            case 1: {
+                // Display the welcome message.
+                cout << "\t\t\t<================================================================================>" << endl;
+                cout << "\t\t\t|                        WELCOME TO SUDOKU Game!                                 |" << endl;
+                cout << "\t\t\t|             Fill in the missing numbers to solve the puzzle.                   |" << endl;
+                cout << "\t\t\t<================================================================================>" << endl;
+
+                // Prompt the user for their nickname.
+                do {
+                    cout << "ENTER YOUR NICKNAME (3-20 chars): ";
+                    getline(cin, playerName);
+                } while (playerName.length() < 3 || playerName.length() > 20);
+
+                // Select the difficulty level.
+                while (true) {
+                    cout << "Choose difficulty level:\n";
+                    cout << "1. Very Easy\n";
+                    cout << "2. Easy\n";
+                    cout << "3. Medium\n";
+                    cout << "4. Hard\n";
+                    difficulty = getValidInput("Your choice (1-4): ", 1, 4);
+                    break;
+                }
+
+                // Initialize the board and adjust the number of cells to remove based on difficulty.
+                board = SudokuBoard();
+                board.generateBaseGrid();
+                board.randomizeGrid();
+
+                int numToRemove;
+                switch (difficulty) {
+                    case 1: numToRemove = 4; break;
+                    case 2: numToRemove = 40; break;
+                    case 3: numToRemove = 50; break;
+                    case 4: numToRemove = 60; break;
+                }
+
+                score = difficulty * 100; // Base score based on difficulty.
+                board.removeNumbers(numToRemove); // Remove numbers to create the puzzle.
+
+                startTimer();
+                playGame();
+                break;
+            }
+            case 2: {
+                handleSolvePuzzle();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                break;
+            }   
+            case 3: {
+                leaderboard.display();
+                cout << "Press Enter to continue...";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                break;  
+            }
+            case 4: {
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                return;
+            }
+            default: {
+                cout << "Invalid choice. Please try again.\n";
+                break;
+            }
+        }
     }
-
-    // Initialize the board and adjust the number of cells to remove based on difficulty.
-    board = SudokuBoard();
-    board.generateBaseGrid();
-    board.randomizeGrid();
-
-    int numToRemove;
-    switch (difficulty) {
-        case 1: numToRemove = 4; break;
-        case 2: numToRemove = 40; break;
-        case 3: numToRemove = 50; break;
-        case 4: numToRemove = 60; break;
-    }
-
-    score = difficulty * 100; // Base score based on difficulty.
-    board.removeNumbers(numToRemove); // Remove numbers to create the puzzle.
-
-    startTimer();
-    playGame();
 }
 
 // Main game loop for playing the Sudoku game.
@@ -139,7 +196,7 @@ void SudokuGame::playGame() {
         cout << "[5] - Leaderboard\n";
         cout << "[6] - Exit\n";
 
-        int choice = getValidInput("Your choice: ", 1, 6);
+        int choice = getValidInput("Your choice: ", 1, 7);
 
         try {
             switch (choice) {

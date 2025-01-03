@@ -16,7 +16,7 @@ private:
 public:
     bool solve(std::vector<std::vector<int>>& board);
     void inputPuzzle(std::vector<std::vector<int>>& board);
-    void printBoard(const std::vector<std::vector<int>>& board) const;
+    void printBoard(const vector<vector<int>>& board) const;
 };
 
 #endif // SOLVER_H

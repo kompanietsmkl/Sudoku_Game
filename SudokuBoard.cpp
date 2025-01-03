@@ -260,13 +260,13 @@ vector<vector<bool>> SudokuBoard::checkBoard() const {
     return errors;
 }
 
-const string RESET_COLOR = "\033[0m";
-const string BLUE_COLOR = "\033[96m";
-const string WHITE_COLOR = "\033[37m";
-const string RED_COLOR = "\033[31m";
-
 // Displays the Sudoku board in a formatted and color-coded way.
 void SudokuBoard::printBoard() const {
+    const string RESET_COLOR = "\033[0m";
+    const string BLUE_COLOR = "\033[96m";
+    const string WHITE_COLOR = "\033[37m";
+    const string RED_COLOR = "\033[31m";
+
     vector<vector<bool>> errors = checkBoard();
     bool showErrors = isBoardFull();
 

@@ -40,6 +40,8 @@ public:
     pair<int, int> getHint() const;
     int getSolutionValue(int row, int col) const;
     void printBoard() const;
+
+    
 };
 
 #endif

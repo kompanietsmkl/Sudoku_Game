@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
+#include <unordered_set>
 using namespace std;
 
 bool Solver::isValid(const vector<vector<int>>& board, int row, int col, int num) const {
@@ -74,28 +75,48 @@ void Solver::inputPuzzle(vector<vector<int>>& board) {
     cout << "\nEnter the Sudoku puzzle, row by row (use 0 for empty cells):\n";
     cout << "Example format for each row: 5 3 0 0 7 0 0 0 0\n\n";
     
-    // Правильная инициализация двумерного вектора
+    // Инициализация двумерного вектора
     board = vector<vector<int>>(SIZE, vector<int>(SIZE));
     
-    for(int i = 0; i < SIZE; i++) {
-        while(true) {
+    for (int i = 0; i < SIZE; i++) {
+        while (true) {
             cout << "Enter row " << i + 1 << ": ";
-            bool validRow = true;
-            for(int j = 0; j < SIZE; j++) {
-                int value;
-                if(!(cin >> value) || value < 0 || value > 9) {
+            string rowInput;
+            getline(cin, rowInput);
+            stringstream ss(rowInput);
+            vector<int> row;
+            unordered_set<int> seenNumbers;
+            vector<int> duplicates;
+            int value;
+            
+            while (ss >> value) {
+                if (value < 0 || value > 9) {
                     cout << "Invalid input! Please enter numbers between 0-9.\n";
-                    cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    validRow = false;
+                    row.clear();
                     break;
                 }
-                board[i][j] = value;
+                if (value != 0 && !seenNumbers.insert(value).second) {
+                    duplicates.push_back(value);
+                }
+                row.push_back(value);
             }
-            if(validRow) {
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                break;
+            
+            // Проверка на количество значений в строке
+            if (row.size() != SIZE) {
+                cout << "Invalid input! Each row must contain exactly 9 numbers.\n";
+                continue;
             }
+            
+            if (!duplicates.empty()) {
+                cout << "Invalid input! The following numbers are repeated in the row: ";
+                for (size_t j = 0; j < duplicates.size(); ++j) {
+                    cout << duplicates[j] << (j < duplicates.size() - 1 ? ", " : "\n");
+                }
+                continue;
+            }
+
+            board[i] = row;
+            break;
         }
     }
 }
